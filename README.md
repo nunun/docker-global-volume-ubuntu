@@ -1,8 +1,8 @@
-# global ボリュームの作成
+# docker-volume-global
 
 docker swarm init か docker swarm join したあとに以下のスクリプトを実行すると、
 
-'global' と名前の付いた nfs ボリューム (オーバーノードなボリューム) を作成できます。
+'global' と名前の付いた、ノードを超えて使える nfs ボリューム を作成できます。
 
 推奨動作環境は ubuntu 16.04。(apt-get 利用につき)
 
