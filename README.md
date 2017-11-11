@@ -1,6 +1,6 @@
 # docker-volume-global
 
-docker swarm init か docker swarm join でノードを登録したあとに以下のスクリプトを実行すると、
+docker swarm init、docker swarm join でノードを登録したあとに以下のスクリプトを実行すると、
 
 'global' と名前の付いた、ノードを超えて使える nfs ボリューム を作成できます。
 
