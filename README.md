@@ -21,3 +21,9 @@ curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/in
 curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/install.sh | sudo sh -s <server-ip>
 ````
 
+## 動作確認
+
+````
+docker run --rm -v global:/global alpine touch /global/hoge
+docker run --rm -v global:/global alpine ls /global
+````
