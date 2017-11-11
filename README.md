@@ -4,7 +4,7 @@ docker swarm init か docker swarm join したあとに以下のスクリプト�
 
 'global' と名前の付いた nfs ボリューム (オーバーノードなボリューム) を作成できます。
 
-動作環境は ubuntu 16.04。(apt-get を使いまくっているので)
+推奨動作環境は ubuntu 16.04。(apt-get 利用につき)
 
 ## nfs サーバとして global ボリュームを作成
 
@@ -13,7 +13,7 @@ curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/in
 ````
 
 ※ nfs サーバとして動作させる場合は、そのノードが swarm manager である必要があります。
-また /etc/exports を容赦なく上書きするので注意。
+また、/etc/exports を容赦なく上書きします。
 
 ## nfs クライアントとして global ボリュームを作成
 
