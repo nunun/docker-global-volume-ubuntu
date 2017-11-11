@@ -1,28 +1,36 @@
 # docker-volume-global
 
-docker swarm init、docker swarm join でノードを登録したあとに以下のスクリプトを実行すると、
+ノードを超えてデータを共有できる、'global' と名前の付いた docker volume を作成するインストールスクリプトです。
 
-'global' と名前の付いた、ノードを超えて使える nfs ボリューム を作成できます。
+docker swarm init, docker swarm join でノードを登録したあとに以下のスクリプトを実行するイメージ。
 
-推奨動作環境は ubuntu 16.04。(apt-get 利用につき)
+docker volume の共有には、nfs + netshare plugin を利用。
 
-## nfs サーバとして global ボリュームを作成
+動作環境は ubuntu。
+
+## nfs サーバとしてインストール
 
 ````
 curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/install.sh | sudo sh
 ````
 
-※ nfs サーバとして動作させる場合は、そのノードが swarm manager である必要があります。
+nfs-server と netshare plugin をインストールし、/etc/exports を作成してサービスをリスタートします。
 
-※ nfs サーバの ACL 更新のため、新しくノードを追加した場合は、サーバ上でもう一度コマンドを叩く必要があります。
+全て終わると global ボリュームができるので、このボリュームを他のコンテナでマウントして使います。
 
-※ /etc/exports を容赦なく上書きします。
+マウントは docker swarm のノードに制限されているため、
 
-## nfs クライアントとして global ボリュームを作成
+新しくノードを追加した場合は、もう一度コマンドを叩いて /etc/exports を更新する必要があります。
+
+## nfs クライアントとしてインストール。
 
 ````
 curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/install.sh | sudo sh -s <server-ip>
 ````
+
+netshare plugin をインストールします。
+
+全て終わると global ボリュームができるので、このボリュームを他のコンテナでマウントして使います。
 
 ## 動作確認
 
