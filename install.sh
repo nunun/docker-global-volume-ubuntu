@@ -1,24 +1,10 @@
+IP="${1}"
 VOLUME_NAME="global"
 EXPORTS_DIR="/exports/docker-volume-global"
 EXPORTS_CONFIG_FILE="/etc/exports"
 EXPORTS_CONFIG_BACKUP_FILE="/etc/exports.bak"
 NETSHARE_DEB_URL="https://github.com/ContainX/docker-volume-netshare/releases/download/v0.17/docker-volume-netshare_0.17_amd64.deb"
-
-# arguments
-if [ "${1}" = "server" ]; then
-        ROLE="server"
-        IP="${2}"
-else
-        ROLE="client"
-        IP="${1}"
-fi
-
-# usage
-if [ -z "${IP}" ]; then
-        echo "usage:"
-        echo " ${0} [server] <server-ip>"
-        exit 1
-fi
+SHOW_GUIDE="0"
 
 # enable error stop
 set -e
@@ -26,8 +12,8 @@ set -e
 # install requirements
 apt-get install wget
 
-# install nfs server (if manager)
-if [ "${ROLE}" = "server" ]; then
+# install nfs server (node must be docker swarm manager)
+if [ -z "${IP}" ]; then
         echo ""
         echo "[install nfs server]"
 
@@ -37,7 +23,7 @@ if [ "${ROLE}" = "server" ]; then
                 echo "node is not docker manager, or no nodes in swarm."
                 exit 1
         fi
-        echo "nodes in swarm:"
+        echo "nodes:"
         echo "${NODES}"
         echo ""
 
@@ -49,6 +35,15 @@ if [ "${ROLE}" = "server" ]; then
         fi
         echo "node addresses:"
         echo "${ADDRS}"
+        echo ""
+
+        # list node addresses
+        IP=`docker node inspect self --format "{{.Status.Addr}}"`
+        if [ -z "${IP}" ]; then
+                echo "node is not docker manager, or could not get ip address."
+                exit 1
+        fi
+        echo "ip: ${IP}"
         echo ""
 
         # create nfs exports
@@ -74,10 +69,13 @@ if [ "${ROLE}" = "server" ]; then
         mkdir -pv "${EXPORTS_DIR}"
         echo "${EXPORTS_DIR} ${EXPORTS}" > "${EXPORTS_CONFIG_FILE}"
         /etc/init.d/nfs-kernel-server restart
+
+        # show guide
+        SHOW_GUIDE="1"
 fi
 
 # install nfs volume
-if [ "${ROLE}" = "server" -o "${ROLE}" = "client" ]; then
+if [ -n "${IP}" ]; then
         echo ""
         echo "[install nfs client]"
 
@@ -105,6 +103,13 @@ if [ "${ROLE}" = "server" -o "${ROLE}" = "client" ]; then
 
         # inspect global volume
         docker volume inspect ${VOLUME_NAME}
+fi
+
+# show guide
+if [ "${SHOW_GUIDE}" = "1" ]; then
+        echo ""
+        echo "copy and paste this command to client node for install global volume:"
+        echo "  curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/install.sh | sudo sh -s ${IP}"
 fi
 
 # done!
