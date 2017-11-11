@@ -13,15 +13,16 @@ curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/in
 ````
 
 ※ nfs サーバとして動作させる場合は、そのノードが swarm manager である必要があります。
-また、/etc/exports を容赦なく上書きします。
+
+※ nfs サーバの ACL 更新のため、新しくノードを追加した場合は、サーバ上でもう一度コマンドを叩く必要があります。
+
+※ /etc/exports を容赦なく上書きします。
 
 ## nfs クライアントとして global ボリュームを作成
 
 ````
 curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/install.sh | sudo sh -s <server-ip>
 ````
-
-※ nfs サーバの ACL 更新のため、新しくノードを追加した場合は、サーバ上でもう一度コマンドを叩く必要があります。
 
 ## 動作確認
 
