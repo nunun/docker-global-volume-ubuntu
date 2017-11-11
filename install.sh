@@ -1,6 +1,7 @@
 VOLUME_NAME="global"
 EXPORTS_DIR="/exports/docker-volume-global"
 EXPORTS_CONFIG_FILE="/etc/exports"
+EXPORTS_CONFIG_BACKUP_FILE="/etc/exports.bak"
 NETSHARE_DEB_URL="https://github.com/ContainX/docker-volume-netshare/releases/download/v0.17/docker-volume-netshare_0.17_amd64.deb"
 
 # enable error stop
@@ -69,13 +70,10 @@ if [ "${IS_MANAGER}" = "true" ]; then
 
         # check config
         if [ -f "${EXPORTS_CONFIG_FILE}" ]; then
-                echo "${EXPORTS_CONFIG_FILE} already exists!:"
-                cat "${EXPORTS_CONFIG_FILE}"
-                echo ""
-                read -p "overwrite ${EXPORTS_CONFIG_FILE}? [Y/n]: " yn
-                if [ ! "${yn}" = "Y" ]; then
-                        echo "install aborted."
-                        exit 1
+                if [ ! -f "${EXPORTS_CONFIG_BACKUP_FILE}" ]; then
+                        echo "${EXPORTS_CONFIG_FILE} already exists."
+                        echo "backup to ${EXPORTS_CONFIG_BACKUP_FILE} ..."
+                        cp -v "${EXPORTS_CONFIG_FILE}" "${EXPORTS_CONFIG_BACKUP_FILE}"
                 fi
         fi
 
