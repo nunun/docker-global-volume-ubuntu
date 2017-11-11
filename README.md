@@ -42,3 +42,7 @@ docker run --rm -v global:/global alpine ls /global
 # 注意事項
 
 * /etc/exports の更新で nfs をリスタートするので、ノード追加の際は多分スタックを全停止する必要がある。
+
+* もしくは docker swarm join --availability=active,pause を巧みに使うことになる。
+
+
