@@ -1,6 +1,6 @@
 # docker-volume-global
 
-docker swarm init か docker swarm join したあとに以下のスクリプトを実行すると、
+docker swarm init か docker swarm join でノードを登録したあとに以下のスクリプトを実行すると、
 
 'global' と名前の付いた、ノードを超えて使える nfs ボリューム を作成できます。
 
@@ -20,6 +20,8 @@ curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/in
 ````
 curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/install.sh | sudo sh -s <server-ip>
 ````
+
+※ nfs サーバの ACL 更新のため、新しくノードを追加した場合は、サーバ上でもう一度コマンドを叩く必要があります。
 
 ## 動作確認
 
