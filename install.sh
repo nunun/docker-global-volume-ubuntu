@@ -1,10 +1,10 @@
-IP="${1}"
-VOLUME_NAME="global"
-VOLUME_EXPORT_DIR="/exports/docker-global-volume"
+NFS_SERVER_IP="${1}"
+NFS_EXPORT_DIR="${2:-"/exports/docker-nfs-volume"}"
+VOLUME_NAME="nfs"
 EXPORTS_CONFIG_FILE="/etc/exports"
 EXPORTS_CONFIG_BACKUP_FILE="/etc/exports.bak"
-NETSHARE_DEB_URL="https://raw.githubusercontent.com/nunun/docker-global-volume/master/docker-volume-netshare_0.17_amd64.deb"
-INSTALL_SH_URL="https://raw.githubusercontent.com/nunun/docker-global-volume/master/install.sh"
+NETSHARE_DEB_URL="https://raw.githubusercontent.com/nunun/docker-nfs-volume/master/docker-volume-netshare_0.17_amd64.deb"
+INSTALL_SH_URL="https://raw.githubusercontent.com/nunun/docker-nfs-volume/master/install.sh"
 SHOW_SERVER_GUIDE="0"
 
 # enable error stop
@@ -13,10 +13,10 @@ set -e
 # install requirements
 apt-get install wget
 
-# install nfs-server (node must be docker swarm manager)
-if [ -z "${IP}" ]; then
+# install nfs server (node must be docker swarm manager)
+if [ -z "${NFS_SERVER_IP}" ]; then
         echo ""
-        echo "[install nfs-server]"
+        echo "[install nfs server]"
 
         # list nodes
         NODES=`docker node ls --format "{{.Hostname}}"`
@@ -39,12 +39,12 @@ if [ -z "${IP}" ]; then
         echo ""
 
         # list node addresses
-        IP=`docker node inspect self --format "{{.Status.Addr}}"`
-        if [ -z "${IP}" ]; then
+        NFS_SERVER_IP=`docker node inspect self --format "{{.Status.Addr}}"`
+        if [ -z "${NFS_SERVER_IP}" ]; then
                 echo "node is not docker manager, or could not get ip address."
                 exit 1
         fi
-        echo "ip: ${IP}"
+        echo "ip: ${NFS_SERVER_IP}"
         echo ""
 
         # create nfs exports
@@ -65,20 +65,20 @@ if [ -z "${IP}" ]; then
                 fi
         fi
 
-        # install server
+        # install
         apt-get install nfs-server
-        mkdir -pv "${VOLUME_EXPORT_DIR}"
-        echo "${VOLUME_EXPORT_DIR} ${EXPORTS}" > "${EXPORTS_CONFIG_FILE}"
+        mkdir -pv "${NFS_EXPORT_DIR}"
+        echo "${NFS_EXPORT_DIR} ${EXPORTS}" > "${EXPORTS_CONFIG_FILE}"
         /etc/init.d/nfs-kernel-server restart
 
         # show server guide
         SHOW_SERVER_GUIDE="1"
 fi
 
-# install global volume
-if [ -n "${IP}" ]; then
+# install nfs volume
+if [ -n "${NFS_SERVER_IP}" ]; then
         echo ""
-        echo "[install global volume]"
+        echo "[install nfs volume]"
 
         # netshare
         wget -O /tmp/netshare.deb "${NETSHARE_DEB_URL}"
@@ -86,29 +86,29 @@ if [ -n "${IP}" ]; then
         service docker-volume-netshare start
         rm -f /tmp/netshare.deb
 
-        # remove global volume
+        # remove nfs volume
         docker volume inspect ${VOLUME_NAME} && docker volume rm ${VOLUME_NAME}
         docker volume inspect ${VOLUME_NAME} && echo "could not delete volume '${VOLUME_NAME}'?" && exit 1
         echo "volume '${VOLUME_NAME}' seems removed or not found."
         echo "creating volume '${VOLUME_NAME}' ..."
 
-        # create global volume
+        # create nfs volume
         docker volume create \
            --driver local \
            --opt type=nfs4 \
-           --opt o=addr=${IP},rw,hard,intr \
-           --opt device=:${VOLUME_EXPORT_DIR} \
+           --opt o=addr=${NFS_SERVER_IP},rw,hard,intr \
+           --opt device=:${NFS_EXPORT_DIR} \
            ${VOLUME_NAME}
 
-        # inspect global volume
+        # inspect nfs volume
         docker volume inspect ${VOLUME_NAME}
 fi
 
 # show server guide
 if [ "${SHOW_SERVER_GUIDE}" = "1" ]; then
         echo ""
-        echo "copy and paste this command to client node for install global volume:"
-        echo "  curl -sSL ${INSTALL_SH_URL} | sudo sh -s ${IP}"
+        echo "copy and paste this command to client node for install nfs volume:"
+        echo "  curl -sSL ${INSTALL_SH_URL} | sudo sh -s ${NFS_SERVER_IP}"
 fi
 
 # done!
