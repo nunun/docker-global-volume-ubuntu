@@ -1,4 +1,4 @@
-# docker-volume-global
+# docker-global-volume
 
 ノードを超えてデータを共有できる、'global' と名前の付いた docker volume を作成するインストールスクリプトです。
 
@@ -8,27 +8,30 @@ docker volume の共有には、nfs + netshare plugin を利用。
 
 動作環境は ubuntu。
 
+* docker volume netshare plugin
+  * https://github.com/ContainX/docker-volume-netshare
+
 ## nfs サーバとしてインストール
 
 ````
-curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/install.sh | sudo sh
+curl -sSL https://raw.githubusercontent.com/nunun/docker-global-volume/master/install.sh | sudo sh
 ````
 
-nfs-server と netshare plugin をインストールし、/etc/exports を作成してサービスをリスタートします。
+ノードに nfs-server と netshare plugin をインストールし、/etc/exports を作成して nfs-server をリスタートします。
 
 全て終わると global ボリュームができるので、このボリュームを他のコンテナでマウントして使って下さい。
 
-マウントは docker swarm のノードに制限されているため、
+nfs マウントを docker swarm 内のノードに制限するため、nfs サーバとなるノードは swarm manager でなければなりません。
 
-新しくノードを追加した場合は、もう一度コマンドを叩いて /etc/exports を更新する必要があります。
+また、swarm に新しくノードを追加する場合は、追加後にもう一度コマンドを叩いて /etc/exports を更新する必要があります。
 
 ## nfs クライアントとしてインストール。
 
 ````
-curl -sSL https://raw.githubusercontent.com/nunun/docker-volume-global/master/install.sh | sudo sh -s <server-ip>
+curl -sSL https://raw.githubusercontent.com/nunun/docker-global-volume/master/install.sh | sudo sh -s <server-ip>
 ````
 
-netshare plugin をインストールします。
+ノードに netshare plugin をインストールします。
 
 全て終わると global ボリュームができるので、このボリュームを他のコンテナでマウントして使って下さい。
 
@@ -41,8 +44,7 @@ docker run --rm -v global:/global alpine ls /global
 
 # 注意事項
 
-* /etc/exports の更新で nfs をリスタートするので、ノード追加の際は多分スタックを全停止する必要がある。
+* /etc/exports の更新で nfs-server をリスタートするので、ノード追加の際は多分スタックを全停止する必要があります。
 
-* もしくは docker swarm join --availability=active,pause を巧みに使うことになる。
-
+* もしくは docker swarm join --availability=active,pause を巧みに使うことになります。
 
