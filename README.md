@@ -11,7 +11,7 @@ docker volume の共有には、nfs + netshare plugin を利用。
 * docker volume netshare plugin
   * https://github.com/ContainX/docker-volume-netshare
 
-## nfs サーバとしてインストール
+## nfs サーバとして global ボリュームをインストール
 
 ````
 curl -sSL https://raw.githubusercontent.com/nunun/docker-global-volume/master/install.sh | sudo sh
@@ -25,7 +25,7 @@ nfs マウントを docker swarm 内のノードに制限するため、nfs サ�
 
 また、swarm に新しくノードを追加する場合は、追加後にもう一度コマンドを叩いて /etc/exports を更新する必要があります。
 
-## nfs クライアントとしてインストール。
+## nfs クライアントとして global ボリュームをインストール
 
 ````
 curl -sSL https://raw.githubusercontent.com/nunun/docker-global-volume/master/install.sh | sudo sh -s <server-ip>
