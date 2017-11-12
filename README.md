@@ -38,8 +38,22 @@ curl -sSL https://raw.githubusercontent.com/nunun/docker-global-volume/master/in
 ## 動作確認
 
 ````
+docker volume inspect global
 docker run --rm -v global:/global alpine touch /global/hoge
 docker run --rm -v global:/global alpine ls /global
+````
+
+## アンインストール
+
+global ボリュームを使用している全てのコンテナを停止してから行って下さい。
+
+````
+# nfs-client
+docker volume rm --force global
+sudo dpkg -r docker-volume-netshare
+# nfs-server
+sudo apt-get remove nfs-kernel-server
+sudo rm -rf /exports/docker-global-volume
 ````
 
 # 注意事項
